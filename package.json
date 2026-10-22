@@ -1,0 +1,20 @@
+{
+  "name": "must-company-quest-ingest-service",
+  "version": "1.0.0",
+  "description": "High-throughput lead ingestion microservice for MUST Company Quest assessment",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "jest --runInBand",
+    "benchmark:baseline": "MODE=baseline node scripts/benchmark.js",
+    "benchmark:optimized": "MODE=optimized node scripts/benchmark.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^13.0.3",
+    "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^7.0.0"
+  }
+}
