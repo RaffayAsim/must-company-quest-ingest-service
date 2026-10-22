@@ -148,7 +148,7 @@ describe('POST /api/leads/ingest Test Suite', () => {
     expect(checkAfter1).toBeUndefined();
   });
 
-  test.skip('Handoff Exercise: X-Idempotency-Key returns cached response in 1 query', async () => {
+  test('Handoff Exercise: X-Idempotency-Key returns cached response in 1 query', async () => {
     const idempotencyKey = 'idemp-key-test-abc-123';
     const payload = {
       leads: [
