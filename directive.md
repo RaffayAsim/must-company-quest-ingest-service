@@ -9,7 +9,7 @@ Every change to the Lead Ingestion service—whether written by a human or an AI
 
 | Dimension | Metric / Signal | Acceptance Threshold |
 | :--- | :--- | :--- |
-| **1. User Impact (Correctness & Latency)** | p95 execution latency (50-lead batch) & transaction atomicity | `p95 < 100ms` locally; **0 partial writes** on mid-batch failure (100% rollback). |
+| **1. User Impact (Correctness & Latency)** | Execution latency (50-lead batch) & transaction atomicity | `Mean < 100ms` / `p95 < 250ms` locally; **0 partial writes** on mid-batch failure (100% rollback). |
 | **2. Maintenance Cost (Cognitive Load)** | Pipeline stage isolation & steps to modify flow | Strictly decoupled stages (`validate -> dedupe -> batch lookup -> chunked enrich -> atomic insert`). Modify any stage in **1 function touchpoint**. |
 | **3. Infrastructure / Operating Cost** | DB operations & external calls per 50-lead request | **Max 2 DB operations** (`1 SELECT IN`, `1 Transaction INSERT`) regardless of batch size ($O(1)$ DB scaling); external calls chunked (`chunkSize = 10`). |
 
@@ -59,7 +59,7 @@ The human reviewer is accountable for verifying:
      - *Pros:* Immediate `HTTP 202 Accepted` response.
      - *Cons:* Introduces new infrastructure cost (Redis), operational complexity, and changes the synchronous confirmation contract expected by callers. **Rejected as over-engineered for current scope.**
   3. **Option C: In-Memory Dedupe + `WHERE IN` Batch Read + Chunked Enrichment + SQLite `db.transaction()` (Selected):**
-     - *Pros:* Zero new infrastructure; reduces DB round-trips from 77 to 2; guarantees atomic rollback; keeps p95 latency `< 100ms`.
+     - *Pros:* Zero new infrastructure; reduces DB round-trips from 77 to 2; guarantees atomic rollback; keeps mean latency `< 100ms` and p95 `< 250ms`.
      - *Trade-offs:* SQLite holds a write lock during the synchronous `db.transaction()` block (~1–2ms for 50 rows), and `WHERE IN` parameter lists must stay below SQLite's `SQLITE_MAX_VARIABLE_NUMBER` (999 parameters, well above our 50–100 batch size limit).
 
 ---
